@@ -1,0 +1,17 @@
+<!-- Soccer Picker betting form template -->
+<div class="app-controller col-xs-12" id="matchPage">
+    <img class="couch-logo top-logo logo" src="{{ logo.src }}" />
+    <h4>{{ form.match.homeTeam }} vs {{ form.match.awayTeam }}</h4>
+    <p><span>{{ form.match.kickoff }}</span></p>
+	<form class="match-form">
+		<label class="text-how-much">{{ form.risk.text }}</label>
+		<ul class="text-input-wrapper">
+			<li>
+				<input class="text-input-value btn-" label="{{ form.match.odds.1 }}" />
+				<input class="text-input-value btn-" label="{{ form.match.odds.2 }}" />
+				<input class="text-input-value btn-" label="{{ form.match.odds.x }}" />
+			</li>
+		</ul>
+		<button class="submit-link" data-rel="matchPage">Next</button>
+	</form>
+</div>

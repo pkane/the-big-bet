@@ -1,0 +1,224 @@
+@font-face {
+    font-family: 'Proxima Nova';
+    src: url(../fonts/ProximaNova-Reg.otf);
+}
+
+@font-face {
+    font-family: 'ProximaNova-Semibold';
+    src: url(../fonts/ProximaNova-Sbold.otf);
+}
+
+@font-face {
+    font-family: 'ProximaNova-SemiboldIt';
+    src: url(../fonts/ProximaNova-SboldIt.otf);
+}
+
+@font-face {
+    font-family: 'ProximaNova-Bold';
+    src: url(../fonts/ProximaNova-Bold.otf);
+}
+
+@font-face {
+    font-family: 'ProximaNova-BoldIt';
+    src: url(../fonts/ProximaNova-BoldIt.otf);
+}
+
+body {
+    margin: 0;
+    background: #182631;
+    color: #fff;
+}
+
+.vertical-center {
+    height: 100vh;
+}
+
+.vertical-center > .row {
+    height: 100%;
+    min-height: 600px;
+}
+
+.logo {
+    display: block;
+    margin: 0 auto;
+    margin-top: 1em;
+    margin-bottom: 1em;
+}
+
+.top-logo {
+    position: absolute;
+    width: 50px;
+    height: 50px;
+    top: 1.25em;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.app-controller {
+    -webkit-transition: opacity 300ms linear;
+    transition: opacity 300ms linear;
+}
+
+.fade-out {
+    opacity: 0;
+}
+
+/* TYPOGRAPHY */
+h1 {
+    font-family: 'Proxima Nova', sans-serif;
+    font-weight:700;
+    text-align:center;
+    text-transform: uppercase;
+    letter-spacing: 4px;
+    font-size: 60px;
+    line-height:80px;
+    margin:0px;
+    padding:0px;
+}
+
+h2 {
+    font-family: 'Proxima Nova', sans-serif;
+    font-weight:700;
+    text-align:center;
+    text-transform: uppercase;
+    font-size: 48px;
+    line-height:72px;
+    margin:0px;
+    padding:0px;
+}
+
+h3 {
+    font-family: 'Proxima Nova', sans-serif;
+    font-weight:700;
+    text-align:center;
+    font-size: 36px;
+    line-height:54px;
+    margin:0px;
+    padding:0px;
+}
+
+h3 > span {
+	text-transform: uppercase;
+	display: block;
+}
+
+h4,
+label {
+    font-family: 'Proxima Nova', sans-serif;
+}
+
+p {
+    font-family: 'Proxima Nova', sans-serif;
+    font-weight:400;
+    text-align:center;
+    font-size: 16px;
+    line-height:25px;
+    margin:0px;
+    padding:0px;
+    margin-top:25px;
+}
+
+.text-covered {
+    /* WE GOT YOU COVERED: */
+    color: #FFFFFF;
+    letter-spacing: 3.7px;
+    text-transform: uppercase;
+    width: 75%;
+    margin: 10em auto 0;
+}
+
+.text-how-much {
+    /* HOW MUCH DO YOU WANT: */
+    font-size: 12px;
+    color: #F5A623;
+    letter-spacing: 3.7px;
+    line-height: 29px;
+    text-transform: uppercase;
+}
+
+.denomination {
+    font-family: 'ProximaNova-SemiboldIt', sans-serif;
+    opacity: 0.98;
+    font-size: 20px;
+    color: #FFFFFF;
+    top: -.5em;
+    position: relative;
+    margin-left: -1em;
+}
+
+.text-input-wrapper {
+    display: block;
+    margin: 2em auto 0;
+    text-align: center;
+}
+
+.text-input-value {
+    /* 25: */
+    background: none;
+    border: none;
+    border-bottom: 1px solid #a2a8ac;
+    width: 80px;
+    display: inline-block;
+    font-family: 'ProximaNova-SemiboldIt', sans-serif;
+    font-size: 36px;
+    color: #FFFFFF;
+    letter-spacing: 4.01px;
+    text-align: center;
+}
+
+.submit-link {
+    position: relative;
+    top: 2em;
+    color: white;
+    font-size: 16px;
+    border-radius: 15px;
+    background: transparent;
+    padding: .5em 1em;
+}
+
+.bet-summary-list {
+    padding: 0;
+    text-transform: uppercase;
+    position: absolute;
+    top: 6em;
+    width: 400px;
+    text-align: center;
+    left: 50%;
+    transform: translateX(-50%);
+    border-top: 2px dashed #a2a8ac;
+}
+
+.bet-summary-list-item,
+.bet-summary-list-item-value {
+    /* BET : */
+    font-family: 'ProximaNova-Bold';
+    font-size: 12px;
+    color: #F5A623;
+    letter-spacing: 3.7px;
+    line-height: 29px;
+    text-align: center;
+    list-style: none;
+}
+
+.bet-summary-list-item {
+    padding: 1em 2em;
+    border-bottom: 2px dashed #a2a8ac;
+}
+
+.bet-summary-list-item-value {
+    /* Type something: */
+    color: #FFFFFF;
+    text-align: right;
+    float: right;
+    padding: 0;
+}
+
+.bet-results-list > li {
+    /* 2: */
+    font-family: ProximaNova-Bold;
+    font-size: 12px;
+    color: #a2a8ac;
+    letter-spacing: 3.7px;
+    line-height: 29px;
+    text-transform: uppercase;
+}
