@@ -1,11 +1,36 @@
+makeRequest = function (method, url) {
+  return new Promise(function (resolve, reject) {
+	var xhr = new XMLHttpRequest();
+	xhr.open(method, url);
+	xhr.onload = function () {
+	  if (this.status >= 200 && this.status < 300) {
+		resolve(xhr.response);
+	  } else {
+		reject({
+		  status: this.status,
+		  statusText: xhr.statusText
+		});
+	  }
+	};
+	xhr.onerror = function () {
+	  reject({
+		status: this.status,
+		statusText: xhr.statusText
+	  });
+	};
+	xhr.send();
+  });
+}
+
 define(function (require) {
-    var model = require('./model');
+	var model = require('./model');
 	var gamesFeed = 'https://s3-eu-west-1.amazonaws.com/fa-ads/frontend/matches.json';
 
 	var App = function() {
 		this.appContainer = '#app';
 		this.loaderPage = model.loaderPage;
 		this.betPage = model.betPage;
+		this.matchPage = model.matchPage;
 		this.winPage = model.winPage;
 		this.resultsPage = model.resultsPage;
 		this.betModel = model.betModel;
@@ -32,6 +57,14 @@ define(function (require) {
 		return responseText;
 	}
 
+	App.prototype.openAjaxCallWithCallback = function(template, callback) {
+		let func = callback;
+		makeRequest('GET', template)
+		.then(function (datums) {
+			func(datums);
+		})
+	}
+
 	App.prototype.importPageData = function(page, container) {
 		// Initialize a new document element and set it's contents to the content of #app
 		var template = page.template;
@@ -47,13 +80,13 @@ define(function (require) {
 	App.prototype.unloadPageData = function(page, container) {
 		var activeEle = document.querySelector('#'+this.activePage.id);
 		activeEle.classList.add('fade-out');
-	    return new Promise(function(resolve, reject){
-	        window.setTimeout(()=> {
+		return new Promise(function(resolve, reject){
+			window.setTimeout(()=> {
 				activeEle.style.display = 'none';
 				activeEle.parentNode.removeChild(activeEle);
 				resolve();
 			}, 300);
-	    })
+		})
 	}
 
 	App.prototype.initEventHandlers = function(e) {
@@ -84,13 +117,16 @@ define(function (require) {
 	}
 
 	App.prototype.getGameFeeds = function(data) {
-		this.matches = this.openAjaxCall(data);
-		console.log(this.matches);
-		this.setUpMatchPages();
+		this.openAjaxCallWithCallback(data, (data)=> {
+			this.matches = JSON.parse(data).matches;
+			console.log(this.matches);
+			this.setUpMatchPages();
+		});
 	}
 
 	App.prototype.setUpMatchPages = function() {
-		this.currentMatch = this.matches[0];
+		this.currentMatch = this.matchPage.form.match = this.matches[0];
+		console.log(this.currentMatch);
 		// for (var i = this.matches.length - 1; i >= 0; i--) {
 		// 	this.matches[i]
 		// }
@@ -143,7 +179,7 @@ define(function (require) {
 			if (formName === 'risk-form') {
 				this.betModel.userRisk = this.winPage.bet.value = eval(curValue);
 				this.unloadPageData(this.activePage, this.appContainer).then(()=> {
-					this.importPageData(this.winPage, this.appContainer);
+					this.importPageData(this.matchPage, this.appContainer);
 					this.initEventHandlers();
 				});
 			} else if (formName === 'win-form') {
@@ -175,31 +211,31 @@ define(function (require) {
 	// This is our App.prototype.to take in all our games
 	// and evaluate the odds for each, then sort them
 	// by biggest payout.
-	App.prototype.makePicks = function(array) {
-		let appWrapper = document.querySelector('.app-wrapper');
-		if (this.betModel.picksArray.length > 0) {
-			this.betModel.picksArray = [];
-			this.betModel.userRisk = this.betModel.userPayout = this.betModel.picksMultiplier = 0;
-		}
-		for (let i = array.length - 1; i >= 0; i--) {
-			let curMultiplier = this.evalPick(array[i].line);
-			let workingTotal = 0;
-			this.betModel.picksMultiplier += curMultiplier;
-			workingTotal = this.betModel.userRisk * this.betModel.picksMultiplier;
-			this.betModel.picksArray.push(array[i]);
-			if (workingTotal >= this.betModel.userPayout) {
-				console.log('goal met! ' + curMultiplier + 'x risk!');
-				for (let i = this.betModel.picksArray.length - 1; i >= 0; i--) {
-					console.log(this.betModel.picksArray[i].team + ' : ' + this.betModel.picksArray[i].line);
-					this.insertText('li',
-						(this.betModel.picksArray[i].team + ' : ' + this.betModel.picksArray[i].line),
-						document.querySelector('.bet-results-list'));
-				}
-				this.insertText('p', ('goal met! ' + curMultiplier + 'x risk!'), appWrapper);
-				return false;
-			}
-		}
-	}
+	// App.prototype.makePicks = function(array) {
+	// 	let appWrapper = document.querySelector('.app-wrapper');
+	// 	if (this.betModel.picksArray.length > 0) {
+	// 		this.betModel.picksArray = [];
+	// 		this.betModel.userRisk = this.betModel.userPayout = this.betModel.picksMultiplier = 0;
+	// 	}
+	// 	for (let i = array.length - 1; i >= 0; i--) {
+	// 		let curMultiplier = this.evalPick(array[i].line);
+	// 		let workingTotal = 0;
+	// 		this.betModel.picksMultiplier += curMultiplier;
+	// 		workingTotal = this.betModel.userRisk * this.betModel.picksMultiplier;
+	// 		this.betModel.picksArray.push(array[i]);
+	// 		if (workingTotal >= this.betModel.userPayout) {
+	// 			console.log('goal met! ' + curMultiplier + 'x risk!');
+	// 			for (let i = this.betModel.picksArray.length - 1; i >= 0; i--) {
+	// 				console.log(this.betModel.picksArray[i].team + ' : ' + this.betModel.picksArray[i].line);
+	// 				this.insertText('li',
+	// 					(this.betModel.picksArray[i].team + ' : ' + this.betModel.picksArray[i].line),
+	// 					document.querySelector('.bet-results-list'));
+	// 			}
+	// 			this.insertText('p', ('goal met! ' + curMultiplier + 'x risk!'), appWrapper);
+	// 			return false;
+	// 		}
+	// 	}
+	// }
 
 	var app = new App();
 });
