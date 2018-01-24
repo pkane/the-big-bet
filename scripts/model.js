@@ -45,7 +45,17 @@ define(function () {
 		    gameId: 0,
 		    text: 'Game ',
 		    form: {
-		    	match : {}
+		    	match : {
+					id: 123456,
+					kickoff: "Thursday 20:45",
+					homeTeam: "Manchester United",
+					awayTeam: "Liverpool",
+					odds: {
+						1: "2.10",
+						2: "2.62",
+						x: "3.30"
+					}
+				},
 		    }
 		};
 

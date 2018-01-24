@@ -96,8 +96,10 @@ define(function (require) {
 		for (var i = pageLinks.length - 1; i >= 0; i--) {
 			pageLinks[i].addEventListener("click", loadPageLink);
 		};
-		submitLink.addEventListener("click", this.formSequence.bind(this));
-		// submitLink.addEventListener("click", getTargetValue);
+		if (submitLink) {
+			submitLink.addEventListener("click", this.formSequence.bind(this));
+			// submitLink.addEventListener("click", getTargetValue);
+		}
 	}
 
 	App.prototype.loadPageLink = function(event) {
@@ -120,43 +122,15 @@ define(function (require) {
 		this.openAjaxCallWithCallback(data, (data)=> {
 			this.matches = JSON.parse(data).matches;
 			console.log(this.matches);
-			this.setUpMatchPages();
+			this.currentMatchIndex = 0;
+			this.setUpMatchPages(this.currentMatchIndex);
 		});
 	}
 
-	App.prototype.setUpMatchPages = function() {
-		this.currentMatch = this.matchPage.form.match = this.matches[0];
+	App.prototype.setUpMatchPages = function(index) {
+		this.currentMatch = this.matchPage.form.match = this.matches[index];
 		console.log(this.currentMatch);
-		// for (var i = this.matches.length - 1; i >= 0; i--) {
-		// 	this.matches[i]
-		// }
 	}
-
-	// App.prototype.getMatchupData = function(data) {
-	// 	var matchups = data.matchups;
-	// 	for (var i = matchups.length - 1; i >= 0; i--) {
-	// 		var homePick = {
-	// 			team : (matchups[i].HOME_CITY + ' ' + matchups[i].HOME_MASCOT),
-	// 			line : matchups[i].HOME_ML
-	// 		};
-	// 		var awayPick = {
-	// 			team : (matchups[i].VISITOR_CITY + ' ' + matchups[i].VISITOR_MASCOT),
-	// 			line : matchups[i].VISITOR_ML
-	// 		};
-	// 		// var safeBet = Math.min(matchups[i].HOME_ML, matchups[i].VISITOR_ML);
-	// 		// var riskyBet = Math.max(matchups[i].HOME_ML, matchups[i].VISITOR_ML);
-	// 		if (matchups[i].HOME_ML >= matchups[i].VISITOR_ML) {
-	// 			this.betModel.aggressiveArray.push(homePick);
-	// 			this.betModel.conservativeArray.push(awayPick);
-	// 		} else {
-	// 			this.betModel.aggressiveArray.push(awayPick);
-	// 			this.betModel.conservativeArray.push(homePick);
-	// 		}
-	// 	}
-	// 	this.betModel.conservativeArray.sort();
-	// 	this.betModel.aggressiveArray.sort();
-	// 	console.log(this.betModel.conservativeArray, this.betModel.aggressiveArray);
-	// }
 
 	App.prototype.formSequence = function(event) {
 		event.preventDefault();
@@ -170,9 +144,16 @@ define(function (require) {
 		}
 
 		if (curValue) {
+			let nextPage = this.matchPage;
 			if (formName === 'match-form') {
+				this.currentMatchIndex++;
+				if (this.currentMatchIndex <= this.matches.length-1) {
+					this.setUpMatchPages(this.currentMatchIndex);
+				} else {
+					nextPage = this.resultsPage;
+				}
 				this.unloadPageData(this.activePage, this.appContainer).then(()=> {
-					this.importPageData(this.matchPage, this.appContainer);
+					this.importPageData(nextPage, this.appContainer);
 					this.initEventHandlers();
 				});
 			}
