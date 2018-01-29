@@ -102,7 +102,10 @@ define(function (require) {
 
 		if (pickLinks.length > 0) {
 			for (let i = pickLinks.length - 1; i >= 0; i--) {
-				pickLinks[i].addEventListener("click", this.storePick.bind(this));
+				pickLinks[i].addEventListener("click", (e)=> {
+					pickLinks.forEach((ele)=> { ele.classList.remove('active'); });
+					this.storePick(e);
+				});
 			}
 		}
 		if (submitLink) {
@@ -132,7 +135,6 @@ define(function (require) {
 	// Set our current match from the data
 	App.prototype.setUpMatchPages = function(index) {
 		this.currentMatch = this.matchPage.form.match = this.matches[index];
-		console.log(this.currentMatch);
 	}
 
 	// The Main App function to handle View logic
@@ -163,8 +165,8 @@ define(function (require) {
 			} else {
 				// We've gone through all matches
 				// Go to Payout screen
-				this.resultsPage.bet.value = this.betModel.userRisk;
-				this.resultsPage.win.value = this.betModel.userPayout = this.calcParlay(this.betModel.picksArray);
+				this.resultsPage.bet.value = ('$' + this.betModel.userRisk.toFixed(2));
+				this.resultsPage.win.value = this.betModel.userPayout = ('$' + this.calcParlay(this.betModel.picksArray));
 				nextPage = this.resultsPage;
 			}
 			this.unloadPageData(this.activePage, this.appContainer).then(()=> {
@@ -187,7 +189,7 @@ define(function (require) {
 				this.betModel.picksArray.push(pick);
 			}
 		}
-		console.log(this.betModel.picksArray)
+		target.classList.add('active');
 		valStore.value = pick;
 	}
 
@@ -208,7 +210,7 @@ define(function (require) {
 		for (let i = array.length - 1; i >= 0; i--) {
 			total = total * eval(array[i]);
 		}
-		return total * this.betModel.userRisk;
+		return (total * this.betModel.userRisk).toFixed(2);
 	}
 
 	var app = new App();
