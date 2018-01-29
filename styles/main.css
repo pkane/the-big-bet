@@ -63,6 +63,15 @@ body {
     opacity: 0;
 }
 
+.text-input-value.btn-hide {
+	display: none;
+}
+
+.bet-value {
+	display: block;
+	margin-top: .5em;
+}
+
 /* TYPOGRAPHY */
 h1 {
     font-family: 'Proxima Nova', sans-serif;
@@ -136,6 +145,11 @@ p {
     text-transform: uppercase;
 }
 
+.text-form-option {
+    color: #F5A623;
+    font-size: 17px;
+}
+
 .denomination {
     font-family: 'ProximaNova-SemiboldIt', sans-serif;
     opacity: 0.98;
@@ -175,6 +189,10 @@ p {
     border-radius: 15px;
     background: transparent;
     padding: .5em 1em;
+}
+
+.pick-link span {
+	pointer-events: none;
 }
 
 .bet-summary-list {
@@ -222,4 +240,26 @@ p {
     letter-spacing: 3.7px;
     line-height: 29px;
     text-transform: uppercase;
+}
+
+.match-form {
+	margin: 100px 0px 0;
+}
+
+.match-form ul {
+	padding: 0;
+    list-style-type: none;
+    display: flex;
+    justify-content: space-between;
+}
+
+.match-form .text-form-option {
+	background: transparent;
+    border-radius: 10px;
+    padding: 1em 1.5em;
+    cursor: pointer;
+}
+.match-form .value {
+	padding: 0;
+	display: none;
 }

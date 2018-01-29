@@ -4,13 +4,23 @@
     <h4>{{ form.match.homeTeam }} vs {{ form.match.awayTeam }}</h4>
     <p><span>{{ form.match.kickoff }}</span></p>
 	<form class="match-form">
-		<ul class="text-input-wrapper">
-			<li>
-				<input class="text-input-value btn-" value="1" />
-				<input class="text-input-value btn-" value="2" />
-				<input class="text-input-value btn-" value="x" />
+<!-- 		<ul class="text-input-wrapper" data-repeat-o="{{ form.match.odds }}">
+			<li data-rel="{{ o[key] }}">
+				<input class="text-input-value btn-" value="{{key}}" />
 			</li>
-		</ul>
+		</ul> -->
+      <!--
+        Loop over Objects. For objects the 'key' state variable is also set.
+      -->
+      <ul data-repeat-o="{{ form.match.odds }}">
+        <li>
+        	<button class="pick-link text-form-option" value="{{ o }}">
+        		<span class="key">{{ key }}</span>
+        	</button>
+			<span class="bet-value">{{ o }}</span>
+        </li>
+      </ul>
+		<input class="text-input-value btn-hide" value="0" />
 		<button class="submit-link" data-rel="matchPage">Next</button>
 	</form>
 </div>

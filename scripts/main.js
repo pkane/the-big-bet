@@ -1,6 +1,6 @@
 makeRequest = function (method, url) {
   return new Promise(function (resolve, reject) {
-	var xhr = new XMLHttpRequest();
+	let xhr = new XMLHttpRequest();
 	xhr.open(method, url);
 	xhr.onload = function () {
 	  if (this.status >= 200 && this.status < 300) {
@@ -23,10 +23,11 @@ makeRequest = function (method, url) {
 }
 
 define(function (require) {
-	var model = require('./model');
-	var gamesFeed = 'https://s3-eu-west-1.amazonaws.com/fa-ads/frontend/matches.json';
+	const model = require('./model');
+	const gamesFeed = 'https://s3-eu-west-1.amazonaws.com/fa-ads/frontend/matches.json';
 
-	var App = function() {
+	// Our App
+	const App = function() {
 		this.appContainer = '#app';
 		this.loaderPage = model.loaderPage;
 		this.betPage = model.betPage;
@@ -40,6 +41,7 @@ define(function (require) {
 		this.getGameFeeds(gamesFeed);
 		// this.getMatchupData(gamesFeed);
 
+		// After 3 sec, hide the loader screen
 		window.setTimeout(()=>{
 			this.unloadPageData(this.activePage, this.appContainer).then(()=>{
 				this.importPageData(this.betPage, this.appContainer);
@@ -48,15 +50,17 @@ define(function (require) {
 		}, 3000);
 	}
 
+	// GET request
 	App.prototype.openAjaxCall = function(template) {
-		var xhttp = new XMLHttpRequest();
+		let xhttp = new XMLHttpRequest();
 		xhttp.open("GET", template, false);
 		xhttp.send();
-		var responseText = xhttp.responseText;
+		let responseText = xhttp.responseText;
 
 		return responseText;
 	}
 
+	// GET request with callback
 	App.prototype.openAjaxCallWithCallback = function(template, callback) {
 		let func = callback;
 		makeRequest('GET', template)
@@ -65,18 +69,20 @@ define(function (require) {
 		})
 	}
 
+	// Load next view, create DOM for new controller
 	App.prototype.importPageData = function(page, container) {
 		// Initialize a new document element and set it's contents to the content of #app
-		var template = page.template;
-		var getTemplateContent = this.openAjaxCall(template);
-		var newEle = document.createElement('template');
+		let template = page.template;
+		let getTemplateContent = this.openAjaxCall(template);
+		let newEle = document.createElement('template');
 		newEle.innerHTML = getTemplateContent;
-		var clone = document.importNode(newEle.content, true);
+		let clone = document.importNode(newEle.content, true);
 		Expand(clone, page);
 		document.querySelector(container).appendChild(clone);
 		this.activePage = page;
 	}
 
+	// Clear current view
 	App.prototype.unloadPageData = function(page, container) {
 		var activeEle = document.querySelector('#'+this.activePage.id);
 		activeEle.classList.add('fade-out');
@@ -89,35 +95,31 @@ define(function (require) {
 		})
 	}
 
+	// Set up event listeners
 	App.prototype.initEventHandlers = function(e) {
-		var pageLinks = document.getElementsByClassName('page-link');
-		var submitLink = document.getElementsByClassName('submit-link')[0];
+		let submitLink = document.getElementsByClassName('submit-link')[0];
+		let pickLinks = document.querySelectorAll('.pick-link');
 
-		for (var i = pageLinks.length - 1; i >= 0; i--) {
-			pageLinks[i].addEventListener("click", loadPageLink);
-		};
+		if (pickLinks.length > 0) {
+			for (let i = pickLinks.length - 1; i >= 0; i--) {
+				pickLinks[i].addEventListener("click", this.storePick.bind(this));
+			}
+		}
 		if (submitLink) {
 			submitLink.addEventListener("click", this.formSequence.bind(this));
 			// submitLink.addEventListener("click", getTargetValue);
 		}
 	}
 
-	App.prototype.loadPageLink = function(event) {
-		event.preventDefault();
-		var target = event.target;
-		var targetLink = target.getAttribute('data-rel');
-		if (targetLink) {
-			this.importPageData(JSON.parse(targetLink));
-		}
-	}
-
+	// Allows the insertion of text into a container/tag ele
 	App.prototype.insertText = function(tag, text, container) {
-		var para = document.createElement(tag);
-		var pickText = document.createTextNode(text);
+		let para = document.createElement(tag);
+		let pickText = document.createTextNode(text);
 		para.appendChild(pickText);
 		container.insertBefore(para, container.childNodes[container.childNodes.length-1]);
 	}
 
+	// Get the game JSON and then set up the match pages model
 	App.prototype.getGameFeeds = function(data) {
 		this.openAjaxCallWithCallback(data, (data)=> {
 			this.matches = JSON.parse(data).matches;
@@ -127,96 +129,87 @@ define(function (require) {
 		});
 	}
 
+	// Set our current match from the data
 	App.prototype.setUpMatchPages = function(index) {
 		this.currentMatch = this.matchPage.form.match = this.matches[index];
 		console.log(this.currentMatch);
 	}
 
+	// The Main App function to handle View logic
 	App.prototype.formSequence = function(event) {
 		event.preventDefault();
-		var form = event.target.parentElement;
-		var formName = form.classList[0];
-		// var formAction = event.target.
-		var curValue = form.getElementsByClassName('text-input-value')[0].value;
+		let form = event.target.parentElement;
+		let formName = form.classList[0];
+		let curValue = form.getElementsByClassName('text-input-value')[0].value;
 
 		if (curValue == '' || curValue <= 0) {
 			return false;
 		}
 
-		if (curValue) {
-			let nextPage = this.matchPage;
-			if (formName === 'match-form') {
-				this.currentMatchIndex++;
-				if (this.currentMatchIndex <= this.matches.length-1) {
-					this.setUpMatchPages(this.currentMatchIndex);
-				} else {
-					nextPage = this.resultsPage;
-				}
-				this.unloadPageData(this.activePage, this.appContainer).then(()=> {
-					this.importPageData(nextPage, this.appContainer);
-					this.initEventHandlers();
-				});
-			}
-			if (formName === 'risk-form') {
-				this.betModel.userRisk = this.winPage.bet.value = eval(curValue);
-				this.unloadPageData(this.activePage, this.appContainer).then(()=> {
-					this.importPageData(this.matchPage, this.appContainer);
-					this.initEventHandlers();
-				});
-			} else if (formName === 'win-form') {
+		let nextPage = this.matchPage;
+		// Risk Form
+		if (formName === 'risk-form') {
+			this.betModel.userRisk = this.winPage.bet.value = eval(curValue);
+			this.unloadPageData(this.activePage, this.appContainer).then(()=> {
+				this.importPageData(this.matchPage, this.appContainer);
+				this.initEventHandlers();
+			});
+		}
+		// Matches Form
+		if (formName === 'match-form') {
+			this.currentMatchIndex++;
+			if (this.currentMatchIndex <= this.matches.length-1) {
+				this.setUpMatchPages(this.currentMatchIndex);
+			} else {
+				// We've gone through all matches
+				// Go to Payout screen
 				this.resultsPage.bet.value = this.betModel.userRisk;
-				this.betModel.userPayout = this.resultsPage.win.value = eval(curValue);
-				this.unloadPageData(this.activePage, this.appContainer).then(()=> {
-					this.importPageData(this.resultsPage, this.appContainer);
-					if (this.betModel.userRisk > 0 && this.betModel.userPayout > 0) {
-						// Need to allow for user toggled aggression level
-						this.makePicks(this.betModel.conservativeArray);
-					}
-				});
+				this.resultsPage.win.value = this.betModel.userPayout = this.calcParlay(this.betModel.picksArray);
+				nextPage = this.resultsPage;
+			}
+			this.unloadPageData(this.activePage, this.appContainer).then(()=> {
+				this.importPageData(nextPage, this.appContainer);
+				this.initEventHandlers();
+			});
+		}
+	}
+
+	App.prototype.storePick = function(event) {
+		event.preventDefault();
+		let target = event.target;
+		let pick = target.getAttribute('value') ? target.getAttribute('value') : '0';
+		let valStore = document.querySelector('.text-input-value');
+
+		if (pick) {
+			if (this.betModel.picksArray.length === this.currentMatchIndex + 1) {
+				this.betModel.picksArray[this.currentMatchIndex] = pick;
+			} else {
+				this.betModel.picksArray.push(pick);
 			}
 		}
+		console.log(this.betModel.picksArray)
+		valStore.value = pick;
 	}
 
 	// This is our humble evaluator
 	// for just taking in a odds, win, and outputting the multiplier
 	// e.g. Giants -150 : 250/150 = 1.6666
 	// e.g. Dolphins +170 : 270/100 = 2.7
-	App.prototype.evalPick = function(odds) {
-		var absOdds = Math.abs(odds);
-		var payout = (absOdds + 100);
-		var multiplier = Math.abs(absOdds === odds ? (payout / 100) : (payout / absOdds));
+	// App.prototype.evalPick = function(odds) {
+	// 	var absOdds = Math.abs(odds);
+	// 	var payout = (absOdds + 100);
+	// 	var multiplier = Math.abs(absOdds === odds ? (payout / 100) : (payout / absOdds));
 
-		return multiplier;
-	}
-
-	// This is our App.prototype.to take in all our games
-	// and evaluate the odds for each, then sort them
-	// by biggest payout.
-	// App.prototype.makePicks = function(array) {
-	// 	let appWrapper = document.querySelector('.app-wrapper');
-	// 	if (this.betModel.picksArray.length > 0) {
-	// 		this.betModel.picksArray = [];
-	// 		this.betModel.userRisk = this.betModel.userPayout = this.betModel.picksMultiplier = 0;
-	// 	}
-	// 	for (let i = array.length - 1; i >= 0; i--) {
-	// 		let curMultiplier = this.evalPick(array[i].line);
-	// 		let workingTotal = 0;
-	// 		this.betModel.picksMultiplier += curMultiplier;
-	// 		workingTotal = this.betModel.userRisk * this.betModel.picksMultiplier;
-	// 		this.betModel.picksArray.push(array[i]);
-	// 		if (workingTotal >= this.betModel.userPayout) {
-	// 			console.log('goal met! ' + curMultiplier + 'x risk!');
-	// 			for (let i = this.betModel.picksArray.length - 1; i >= 0; i--) {
-	// 				console.log(this.betModel.picksArray[i].team + ' : ' + this.betModel.picksArray[i].line);
-	// 				this.insertText('li',
-	// 					(this.betModel.picksArray[i].team + ' : ' + this.betModel.picksArray[i].line),
-	// 					document.querySelector('.bet-results-list'));
-	// 			}
-	// 			this.insertText('p', ('goal met! ' + curMultiplier + 'x risk!'), appWrapper);
-	// 			return false;
-	// 		}
-	// 	}
+	// 	return multiplier;
 	// }
+
+	App.prototype.calcParlay = function(array) {
+		let total = 1;
+		for (let i = array.length - 1; i >= 0; i--) {
+			total = total * eval(array[i]);
+		}
+		return total * this.betModel.userRisk;
+	}
 
 	var app = new App();
 });
